@@ -50,6 +50,10 @@ public class Account extends Bank {
         return listAccounts;
     }
 
+    public void setListAccounts(List<Account> listAccounts) {
+        this.listAccounts = listAccounts;
+    }
+
     @Override
     public String toString() {
         return "Account{" +
@@ -97,7 +101,7 @@ public class Account extends Bank {
         }
     }
 
-    public boolean accountLogin() {
+    public  void readFromFile() {
         File fileToList = new File("C:\\Users\\sersid\\IdeaProjects\\training2\\src\\test.txt");
         try {
             Scanner scanner = new Scanner(fileToList);
@@ -105,10 +109,31 @@ public class Account extends Bank {
                 String lineFromFile = scanner.nextLine();
                 String[] lineFromFileArray = lineFromFile.split(" ");
                 listAccounts.add(new Account(lineFromFileArray[0],lineFromFileArray[1],Integer.parseInt(lineFromFileArray[2])));
+
             }
         } catch (FileNotFoundException e) {
             System.out.println("File not found!");
         }
+    }
+
+    public void writeToFile() {
+        File fromListToFile = new File("C:\\Users\\sersid\\IdeaProjects\\training2\\src\\test.txt");
+        try {
+            PrintWriter printWriter = new PrintWriter(fromListToFile);
+            for (Account line: listAccounts) {
+                printWriter.println(line.getCardNumber() + " " + line.getPinCode() + " " +line.getBalance());
+            }
+            printWriter.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found!");
+        }
+    }
+
+    public boolean accountLogin() {
+        readFromFile();
+        System.out.println("Please, enter your card's number");
+
+        return true;
     }
 
 }

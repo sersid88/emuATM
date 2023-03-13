@@ -9,26 +9,42 @@ public class Account extends Bank {
     private String pinCode;
     private String cardNumber;
 
-    private List<Account> listAccounts = new ArrayList<>();
+    private static List<Account> listAccounts = new ArrayList<>();
 
     private Bank bank = new Bank();
 
-    public Account () {
+    //Scanner scannerSystem = new Scanner(System.in);
+
+
+    ///////////Открываем поток к файлу "базы данных"/////////////////////////////////////////////////////////////////
+    File listDataBase = new File("C:\\Users\\sersid\\IdeaProjects\\training2\\src\\test.txt");
+    //PrintWriter printWriter = new PrintWriter(listDataBase);
+
+    //PrintWriter pw = new PrintWriter(listDataBase);
+
+    //Scanner scannerFile = new Scanner(listDataBase);
+
+    //////////////////////////////////////КОНСТРУКТОРЫ/////////////////////////////////////////////////////////////
+    public Account () throws FileNotFoundException {
+
 
     }
 
-    public Account(String cardNumber, String pinCode) {
+    public Account(String cardNumber, String pinCode) throws FileNotFoundException {
         this.cardNumber = cardNumber;
         this.pinCode = pinCode;
 
     }
 
-    //////////////////////////////////////ПОДУМАТЬ////////////////////////
-    public Account(String cardNumber, String pinCode, Integer balance) {
+    //todo проверить правильность конструктора
+    public Account(String cardNumber, String pinCode, Integer balance) throws FileNotFoundException {
         this.cardNumber = cardNumber;
         this.pinCode = pinCode;
         super.setBalance(balance);
+
     }
+
+    ////////////////////////////////////GET-теры и SET-теры/////////////////////////////////////////////////////////
 
     public String getPinCode() {
         return pinCode;
@@ -50,19 +66,28 @@ public class Account extends Bank {
         return listAccounts;
     }
 
+    public void setListAccounts(List<Account> listAccounts) {
+        this.listAccounts = listAccounts;
+    }
+
+    //////////////////////////////////////////////МЕТОДЫ/////////////////////////////////////////////////////////////
+
+    public  void printList() {
+        System.out.println(listAccounts);
+    }
+
     @Override
     public String toString() {
         return "Account{" +
                 "cardNumber='" + cardNumber  + '\'' +
                 ", pinCode='" + pinCode  + '\'' +
-                '}';
+               "balance='" + getBalance() + '}';
     }
 
-    public  Account createNewAccount () {
-
+    public  Account createNewAccount () throws FileNotFoundException {
+        Scanner scannerSystem = new Scanner(System.in);
         System.out.println("Please, enter your card's number in format: XXXX-XXXX-XXXX-XXXX");
-        Scanner scanner = new Scanner(System.in);
-        String cardNumberLine = scanner.nextLine();
+        String cardNumberLine = scannerSystem.nextLine();
 
         if (cardNumberLine.matches("\\d{4}-\\d{4}-\\d{4}-\\d{4}")) {
             System.out.println("Thank you");
@@ -71,7 +96,7 @@ public class Account extends Bank {
 
         System.out.println("Please, enter your card's PIN-code in format: XXXX");
 
-        String cardPinCodeLine = scanner.nextLine();
+        String cardPinCodeLine = scannerSystem.nextLine();
         if (cardPinCodeLine.matches("\\d{4}")) {
             System.out.println("Thank you");;
         } else {System.out.println("Wrong code! Please enter correct pin-code");
@@ -79,36 +104,72 @@ public class Account extends Bank {
 
         Account newCreatedAccount = new Account(cardNumberLine,cardPinCodeLine);
         listAccounts.add(newCreatedAccount);
-        scanner.close();
+
         return newCreatedAccount;
     }
 
-
-
     public void  saveNewAccountToFile() {
-        File listToFile = new File("C:\\Users\\sersid\\IdeaProjects\\training2\\src\\test.txt");
+        try (PrintWriter printWriter = new PrintWriter(listDataBase)) {
 
-        try {
-            PrintWriter pw = new PrintWriter(listToFile);
-            pw.println(listAccounts.get(0).getCardNumber() + " " + getListAccounts().get(0).getPinCode() + " " + bank.getBalance());
-            pw.close();
+            printWriter.println(getListAccounts().get(0).getCardNumber() + " " + getListAccounts().get(0).getPinCode() +
+                    " " + getListAccounts().get(0).getBalance());
+            printWriter.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found!");
+        }
+    }
+
+    public  void readFromFile() {
+        //File fileToList = new File("C:\\Users\\sersid\\IdeaProjects\\training2\\src\\test.txt");
+        try(Scanner scannerFile = new Scanner(listDataBase)) {
+
+            while (scannerFile.hasNextLine()) {
+                String lineFromFile = scannerFile.nextLine();
+                String[] lineFromFileArray = lineFromFile.split(" ");
+                listAccounts.add(new Account(lineFromFileArray[0],lineFromFileArray[1],Integer.parseInt(lineFromFileArray[2])));
+
+            }
+            //scanner.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found!");
+        }
+    }
+
+    public void writeToFile() {
+        try (PrintWriter printWriter = new PrintWriter(listDataBase)) {
+            printWriter.println(listAccounts.get(0).cardNumber + " " + listAccounts.get(0).pinCode + " " + listAccounts.get(0).getBalance());
+            printWriter.close();
+
         } catch (FileNotFoundException e) {
             System.out.println("File not found!");
         }
     }
 
     public boolean accountLogin() {
-        File fileToList = new File("C:\\Users\\sersid\\IdeaProjects\\training2\\src\\test.txt");
-        try {
-            Scanner scanner = new Scanner(fileToList);
-            while (scanner.hasNextLine()) {
-                String lineFromFile = scanner.nextLine();
-                String[] lineFromFileArray = lineFromFile.split(" ");
-                listAccounts.add(new Account(lineFromFileArray[0],lineFromFileArray[1],Integer.parseInt(lineFromFileArray[2])));
-            }
-        } catch (FileNotFoundException e) {
-            System.out.println("File not found!");
+
+        readFromFile();
+        Scanner scannerSystem = new Scanner(System.in);
+        System.out.println("Please, enter your card's number");
+        String loginCardNumber = scannerSystem.nextLine();
+        if (loginCardNumber.matches("\\d{4}-\\d{4}-\\d{4}-\\d{4}")) {
+            System.out.println("Thank you");
+        } else  {System.out.println("Wrong number, please enter correct number");
+            return false;}
+        System.out.println("Please, enter your PIN-code");
+        String loginPinCode = scannerSystem.nextLine();
+        if (loginPinCode.matches("\\d{4}")) {
+            System.out.println("Thank you");
+        } else {System.out.println("Wrong code! Please enter correct pin-code");
+            return false;}
+        //todo пересмотреть этот метод. объект класса bank
+        for (Account account: getListAccounts()) {
+            if (account.getCardNumber().equals(loginCardNumber) && account.getPinCode().equals(loginPinCode)) {
+                System.out.printf("Successfully! Balance: %d",bank.getBalance());
+                return true;
+            } else System.out.println("Card number and pin-code do not match!");
         }
+
+        return false;
     }
 
 }

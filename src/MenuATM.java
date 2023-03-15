@@ -2,19 +2,11 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 public class MenuATM {
-
     private final Scanner scanner;
-
-    public MenuATM(Scanner scanner) throws FileNotFoundException {
+    public MenuATM(Scanner scanner) {
         this.scanner = scanner;
     }
-
-
     Account account = new Account();
-
-
-
-
     public void printMainMenu() {
         System.out.println("******************************************************************");
         System.out.println("[ 1 ] 'Create new account.' ");
@@ -22,7 +14,6 @@ public class MenuATM {
         System.out.println("[ 3 ] 'Exit.'");
         System.out.println("******************************************************************  \n ");
     }
-
     public void printATMMenu() {
         System.out.println("******************************************************************");
         System.out.println("[ 1 ] 'Show balance' ");
@@ -32,9 +23,7 @@ public class MenuATM {
         System.out.println("[ 5 ] 'Exit' ");
         System.out.println("******************************************************************  \n ");
     }
-
     public void mainMenu() throws FileNotFoundException {
-
         if (this.scanner != null) {
             int key;
             do {
@@ -57,9 +46,8 @@ public class MenuATM {
                     default:
                         System.out.println("Wrong menu number. Try once more.");
                 }
-
             } while (key != 3);
-        } //scanner.close();
+        }
     }
     public void bankMenu() throws FileNotFoundException {
         if (this.scanner != null) {
@@ -91,8 +79,6 @@ public class MenuATM {
                     System.out.println("Wrong menu number");
                 }
             } while (key !=4);
-        } //scanner.close();
+        }
     }
-
-
 }
